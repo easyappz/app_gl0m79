@@ -1,10 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
 const apiRoutes = require('./apiRoutes');
 
 // Для работы с express
 const app = express();
+
+// Middleware для парсинга JSON
+app.use(bodyParser.json());
 
 app.use('/api', apiRoutes);
 
@@ -24,14 +28,10 @@ mongoDb
     console.error('MongoDB connection error:', err);
   });
 
-// const MongoTestSchema = new mongoose.Schema({
-//   value: { type: String, required: true },
-// });
+// Определение порта
+const PORT = process.env.PORT || 3000;
 
-// const MongoModelTest = global.mongoDb.model('Test', MongoTestSchema);
-
-// const newTest = new MongoModelTest({
-//   value: 'test-value',
-// });
-
-// newTest.save();
+// Запуск сервера
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
