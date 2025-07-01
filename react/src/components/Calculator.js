@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Button, Typography } from '@mui/material';
+import { Box, Grid, Button, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const CalculatorButton = styled(Button)(({ theme, color }) => ({
   width: '100%',
@@ -47,11 +48,31 @@ const Display = styled(Box)(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
+const HistoryList = styled(List)(({ theme }) => ({
+  maxHeight: '200px',
+  overflow: 'auto',
+  backgroundColor: '#1c1c1e',
+  borderRadius: '8px',
+  marginTop: theme.spacing(2),
+}));
+
 const Calculator = () => {
   const [display, setDisplay] = useState('0');
   const [operator, setOperator] = useState(null);
   const [prevValue, setPrevValue] = useState(null);
   const [waitingForOperand, setWaitingForOperand] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('calculatorHistory');
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('calculatorHistory', JSON.stringify(history));
+  }, [history]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -123,6 +144,7 @@ const Calculator = () => {
     setDisplay(result.toString());
     setPrevValue(result);
     setOperator(null);
+    addToHistory(`${prevValue} ${operator} ${current} = ${result}`);
   };
 
   const handleEquals = () => {
@@ -160,6 +182,15 @@ const Calculator = () => {
     } else if (!display.includes('.')) {
       setDisplay(display + '.');
     }
+  };
+
+  const addToHistory = (calculation) => {
+    setHistory((prevHistory) => [calculation, ...prevHistory.slice(0, 9)]);
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('calculatorHistory');
   };
 
   return (
@@ -204,6 +235,19 @@ const Calculator = () => {
           <CalculatorButton color="operator" onClick={handleEquals}>=</CalculatorButton>
         </Grid>
       </Grid>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="h6" sx={{ color: '#ffffff' }}>History</Typography>
+        <IconButton onClick={clearHistory} sx={{ color: '#ffffff' }}>
+          <DeleteIcon />
+        </IconButton>
+        <HistoryList>
+          {history.map((item, index) => (
+            <ListItem key={index}>
+              <ListItemText primary={item} sx={{ color: '#ffffff' }} />
+            </ListItem>
+          ))}
+        </HistoryList>
+      </Box>
     </Box>
   );
 };
