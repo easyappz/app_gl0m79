@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Grid, Button, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -43,19 +43,47 @@ const Calculator = () => {
   const [display, setDisplay] = useState('0');
   const [operator, setOperator] = useState(null);
   const [prevValue, setPrevValue] = useState(null);
+  const [waitingForOperand, setWaitingForOperand] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      const key = event.key;
+      if (/[0-9]/.test(key)) {
+        handleNumberClick(key);
+      } else if (['+', '-', '*', '/'].includes(key)) {
+        handleOperatorClick(key === '*' ? '×' : key === '/' ? '÷' : key);
+      } else if (key === 'Enter' || key === '=') {
+        handleEquals();
+      } else if (key === 'Escape') {
+        handleClear();
+      } else if (key === '.') {
+        handleDecimal();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [display, operator, prevValue, waitingForOperand]);
 
   const handleNumberClick = (num) => {
-    setDisplay((prev) => (prev === '0' ? num : prev + num));
+    if (waitingForOperand) {
+      setDisplay(num);
+      setWaitingForOperand(false);
+    } else {
+      setDisplay(display === '0' ? num : display + num);
+    }
   };
 
   const handleOperatorClick = (op) => {
-    if (prevValue === null) {
-      setPrevValue(parseFloat(display));
-      setDisplay('0');
-    } else {
+    if (operator && !waitingForOperand) {
       calculate();
+    } else if (!waitingForOperand) {
+      setPrevValue(parseFloat(display));
     }
     setOperator(op);
+    setWaitingForOperand(true);
   };
 
   const calculate = () => {
@@ -72,6 +100,13 @@ const Calculator = () => {
         result = prevValue * current;
         break;
       case '÷':
+        if (current === 0) {
+          setDisplay('Error');
+          setPrevValue(null);
+          setOperator(null);
+          setWaitingForOperand(true);
+          return;
+        }
         result = prevValue / current;
         break;
       default:
@@ -83,19 +118,27 @@ const Calculator = () => {
   };
 
   const handleEquals = () => {
-    if (operator) {
-      calculate();
-    }
+    if (!operator) return;
+    calculate();
+    setWaitingForOperand(true);
   };
 
   const handleClear = () => {
     setDisplay('0');
     setOperator(null);
     setPrevValue(null);
+    setWaitingForOperand(false);
   };
 
   const handlePercent = () => {
-    setDisplay((parseFloat(display) / 100).toString());
+    const current = parseFloat(display);
+    if (operator && prevValue !== null) {
+      const percentValue = (prevValue * current) / 100;
+      setDisplay(percentValue.toString());
+      setWaitingForOperand(false);
+    } else {
+      setDisplay((current / 100).toString());
+    }
   };
 
   const handlePlusMinus = () => {
@@ -103,7 +146,10 @@ const Calculator = () => {
   };
 
   const handleDecimal = () => {
-    if (!display.includes('.')) {
+    if (waitingForOperand) {
+      setDisplay('0.');
+      setWaitingForOperand(false);
+    } else if (!display.includes('.')) {
       setDisplay(display + '.');
     }
   };
