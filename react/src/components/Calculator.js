@@ -2,41 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { Box, Grid, Button, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
-const CalculatorButton = styled(Button)(({ theme }) => ({
+const CalculatorButton = styled(Button)(({ theme, color }) => ({
   width: '100%',
-  height: '100%',
+  height: '60px',
   borderRadius: '50%',
-  fontSize: '1.5rem',
-  fontWeight: 'bold',
-  '&.operator': {
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.common.white,
-    '&:hover': {
-      backgroundColor: theme.palette.primary.dark,
-    },
+  fontSize: '1.8rem',
+  fontWeight: '400',
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  transition: 'background-color 0.3s, transform 0.1s',
+  '&:active': {
+    transform: 'scale(0.95)',
   },
-  '&.number': {
-    backgroundColor: theme.palette.grey[800],
-    color: theme.palette.common.white,
+  ...(color === 'operator' && {
+    backgroundColor: '#ff9f0a',
+    color: '#ffffff',
     '&:hover': {
-      backgroundColor: theme.palette.grey[700],
+      backgroundColor: '#fbb03b',
     },
-  },
-  '&.function': {
-    backgroundColor: theme.palette.grey[600],
-    color: theme.palette.common.black,
+  }),
+  ...(color === 'number' && {
+    backgroundColor: '#333333',
+    color: '#ffffff',
     '&:hover': {
-      backgroundColor: theme.palette.grey[500],
+      backgroundColor: '#4d4d4d',
     },
-  },
+  }),
+  ...(color === 'function' && {
+    backgroundColor: '#a5a5a5',
+    color: '#000000',
+    '&:hover': {
+      backgroundColor: '#d4d4d2',
+    },
+  }),
 }));
 
 const Display = styled(Box)(({ theme }) => ({
-  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  borderRadius: theme.shape.borderRadius,
+  backgroundColor: 'transparent',
   padding: theme.spacing(2),
   marginBottom: theme.spacing(2),
   textAlign: 'right',
+  height: '120px',
+  display: 'flex',
+  alignItems: 'flex-end',
+  justifyContent: 'flex-end',
 }));
 
 const Calculator = () => {
@@ -155,45 +163,45 @@ const Calculator = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 300, margin: 'auto', mt: 4 }}>
+    <Box sx={{ maxWidth: 300, margin: 'auto', mt: 4, backgroundColor: '#000000', borderRadius: '16px', padding: '20px' }}>
       <Display>
-        <Typography variant="h4">{display}</Typography>
+        <Typography variant="h2" sx={{ fontSize: '3rem', color: '#ffffff' }}>{display}</Typography>
       </Display>
       <Grid container spacing={1}>
         <Grid item xs={3}>
-          <CalculatorButton className="function" onClick={handleClear}>AC</CalculatorButton>
+          <CalculatorButton color="function" onClick={handleClear}>AC</CalculatorButton>
         </Grid>
         <Grid item xs={3}>
-          <CalculatorButton className="function" onClick={handlePlusMinus}>+/-</CalculatorButton>
+          <CalculatorButton color="function" onClick={handlePlusMinus}>+/-</CalculatorButton>
         </Grid>
         <Grid item xs={3}>
-          <CalculatorButton className="function" onClick={handlePercent}>%</CalculatorButton>
+          <CalculatorButton color="function" onClick={handlePercent}>%</CalculatorButton>
         </Grid>
         <Grid item xs={3}>
-          <CalculatorButton className="operator" onClick={() => handleOperatorClick('÷')}>÷</CalculatorButton>
+          <CalculatorButton color="operator" onClick={() => handleOperatorClick('÷')}>÷</CalculatorButton>
         </Grid>
         {[7, 8, 9, 4, 5, 6, 1, 2, 3].map((num) => (
           <Grid item xs={3} key={num}>
-            <CalculatorButton className="number" onClick={() => handleNumberClick(num.toString())}>{num}</CalculatorButton>
+            <CalculatorButton color="number" onClick={() => handleNumberClick(num.toString())}>{num}</CalculatorButton>
           </Grid>
         ))}
         <Grid item xs={3}>
-          <CalculatorButton className="operator" onClick={() => handleOperatorClick('×')}>×</CalculatorButton>
+          <CalculatorButton color="operator" onClick={() => handleOperatorClick('×')}>×</CalculatorButton>
         </Grid>
         <Grid item xs={3}>
-          <CalculatorButton className="operator" onClick={() => handleOperatorClick('-')}>-</CalculatorButton>
+          <CalculatorButton color="operator" onClick={() => handleOperatorClick('-')}>-</CalculatorButton>
         </Grid>
         <Grid item xs={3}>
-          <CalculatorButton className="operator" onClick={() => handleOperatorClick('+')}>+</CalculatorButton>
+          <CalculatorButton color="operator" onClick={() => handleOperatorClick('+')}>+</CalculatorButton>
         </Grid>
         <Grid item xs={6}>
-          <CalculatorButton className="number" onClick={() => handleNumberClick('0')}>0</CalculatorButton>
+          <CalculatorButton color="number" onClick={() => handleNumberClick('0')} sx={{ borderRadius: '30px', width: '100%', justifyContent: 'flex-start', paddingLeft: '25px' }}>0</CalculatorButton>
         </Grid>
         <Grid item xs={3}>
-          <CalculatorButton className="number" onClick={handleDecimal}>.</CalculatorButton>
+          <CalculatorButton color="number" onClick={handleDecimal}>.</CalculatorButton>
         </Grid>
         <Grid item xs={3}>
-          <CalculatorButton className="operator" onClick={handleEquals}>=</CalculatorButton>
+          <CalculatorButton color="operator" onClick={handleEquals}>=</CalculatorButton>
         </Grid>
       </Grid>
     </Box>
